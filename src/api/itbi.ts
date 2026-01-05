@@ -1,0 +1,124 @@
+import axios from 'axios'
+import { format } from 'date-fns'
+
+const BASE = '/api'
+
+// Fetch features - get more data for better coverage
+export async function fetchRecentFeatures(): Promise<any[]> {
+  const page = 1000
+  let offset = 0
+  let all: any[] = []
+
+  // Get current year and 2 years back for filtering
+  const currentYear = new Date().getFullYear()
+  const minYear = currentYear - 2
+
+  try {
+    while (true) {
+      const params = new URLSearchParams({
+        f: 'json',
+        // Filter by year to reduce data load - last 3 years
+        where: `ano_transação >= ${minYear}`,
+        outFields: '*',
+        resultOffset: String(offset),
+        resultRecordCount: String(page)
+      })
+      const url = `${BASE}?${params.toString()}`
+      const res = await axios.get(url, {
+        timeout: 30000,
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      const data = res.data
+      if (!data || !data.features) break
+      all = all.concat(data.features)
+
+      // Increased limit to 50k records to ensure we get all streets
+      if (data.features.length < page || all.length >= 50000) break
+      offset += page
+    }
+    console.log(`Loaded ${all.length} transaction records`)
+    return all
+  } catch (error) {
+    console.error('Error fetching ITBI data:', error)
+    throw new Error('Failed to fetch property data from Rio City Hall. Please try again later.')
+  }
+}
+
+function normalizeString(s: string) {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+}
+
+export function parseFeaturesForRecords(features: any[]) {
+  // Convert aggregated monthly data into records
+  const records: any[] = []
+  for (const f of features) {
+    const attrs = f.attributes || {}
+
+    // Get street name
+    const address = attrs.logradouro ? String(attrs.logradouro).trim() : ''
+    if (!address) continue
+
+    // Get year and month
+    const year = attrs['ano_transação'] || attrs.ano_transacao
+    const month = attrs['mês_transação'] || attrs.mes_transacao
+
+    if (!year || !month) continue
+
+    // Create date from year and month
+    const dateVal = new Date(year, month - 1, 1)
+
+    // Get values (média_valor_imóvel and média_área_construída)
+    const avgValue = attrs['média_valor_imóvel'] || attrs.media_valor_imovel || 0
+    const avgArea = attrs['média_área_construída'] || attrs.media_area_construida || 0
+
+    // Calculate m2 price
+    let m2Price: number | null = null
+    if (avgValue > 0 && avgArea > 0) {
+      m2Price = avgValue / avgArea
+    }
+
+    // Get transaction count
+    const transactionCount = attrs['total_transações'] || attrs.total_transacoes || 1
+
+    records.push({
+      raw: attrs,
+      date: dateVal,
+      address,
+      value: avgValue,
+      area: avgArea,
+      m2Price,
+      transactionCount,
+      bairro: attrs.bairro || '',
+      uso: attrs.uso || '',
+      year,
+      month
+    })
+  }
+
+  return records
+}
+
+export function filterRecordsByStreet(records: any[], street: string) {
+  const s = normalizeString(street)
+  return records.filter((r) => {
+    if (!r.address) return false
+    const a = normalizeString(r.address)
+    return a.includes(s)
+  })
+}
+
+export function groupByMonth(records: any[]) {
+  const map: Record<string, any[]> = {}
+  for (const r of records) {
+    if (!r.date) continue
+    const key = format(new Date(r.date), 'yyyy-MM')
+    if (!map[key]) map[key] = []
+    map[key].push(r)
+  }
+  return map
+}
