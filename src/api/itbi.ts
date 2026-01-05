@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { format } from 'date-fns'
 
-const BASE = '/api'
+// Use Vite dev proxy at /api during local development, and the real ArcGIS endpoint in production
+const BASE = import.meta.env.DEV ? '/api' : 'https://pgeo3.rio.rj.gov.br/arcgis/rest/services/Fazenda/ITBI/MapServer/8/query'
 
 // Fetch features - get more data for better coverage
 export async function fetchRecentFeatures(): Promise<any[]> {
