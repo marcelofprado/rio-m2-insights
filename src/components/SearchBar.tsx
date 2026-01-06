@@ -1,19 +1,53 @@
 import { useMemo, useState } from 'react'
 
-export default function SearchBar({ records, onSelectStreet }: { records: any[]; onSelectStreet: (s: string) => void }) {
+type SuggestionItem = {
+  address: string
+  bairro: string
+}
+
+type Theme = {
+  bgGradient: string
+  titleGradient: string
+  primary: string
+  secondary: string
+}
+
+export default function SearchBar({ records, onSelectStreet, theme }: { records: any[]; onSelectStreet: (s: string) => void; theme: Theme }) {
   const [q, setQ] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
+
+  const getColorClasses = () => {
+    if (theme.primary === 'blue') {
+      return {
+        inputFocus: 'focus:border-blue-500 focus:ring-blue-200',
+        button: 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700',
+        suggestionHover: 'hover:bg-blue-50 hover:text-blue-700'
+      }
+    } else {
+      return {
+        inputFocus: 'focus:border-red-500 focus:ring-red-200',
+        button: 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700',
+        suggestionHover: 'hover:bg-red-50 hover:text-red-700'
+      }
+    }
+  }
+
+  const colors = getColorClasses()
 
   const suggestions = useMemo(() => {
     if (!q || q.length < 2) return []
     const s = q.trim().toLowerCase()
-    const uniques = new Set<string>()
+    const uniquesMap = new Map<string, SuggestionItem>()
     for (const r of records) {
       if (!r.address) continue
-      if (r.address.toLowerCase().includes(s)) uniques.add(r.address)
-      if (uniques.size >= 12) break
+      if (r.address.toLowerCase().includes(s)) {
+        if (!uniquesMap.has(r.address)) {
+          uniquesMap.set(r.address, { address: r.address, bairro: r.bairro || '' })
+        }
+      }
+      if (uniquesMap.size >= 12) break
     }
-    return Array.from(uniques)
+    return Array.from(uniquesMap.values())
   }, [q, records])
 
   const submit = (s: string) => {
@@ -41,7 +75,7 @@ export default function SearchBar({ records, onSelectStreet }: { records: any[];
             </svg>
           </div>
           <input
-            className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none text-base sm:text-lg"
+            className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 border-2 border-slate-200 rounded-xl ${colors.inputFocus} focus:ring-2 transition-all outline-none text-base sm:text-lg`}
             placeholder="Ex: Av. Rio Branco, Rua das Laranjeiras..."
             value={q}
             onChange={(e) => {
@@ -55,7 +89,7 @@ export default function SearchBar({ records, onSelectStreet }: { records: any[];
         <button
           onClick={() => submit(q)}
           disabled={!q.trim()}
-          className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg text-sm sm:text-base"
+          className={`w-full sm:w-auto px-6 py-2.5 sm:py-3 ${colors.button} text-white rounded-xl font-semibold disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg text-sm sm:text-base`}
         >
           Buscar
         </button>
@@ -68,15 +102,18 @@ export default function SearchBar({ records, onSelectStreet }: { records: any[];
             <ul className="space-y-1">
               {suggestions.map((s) => (
                 <li
-                  key={s}
-                  className="cursor-pointer text-slate-700 px-3 py-2 sm:py-2.5 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center gap-2 text-sm sm:text-base"
-                  onClick={() => submit(s)}
+                  key={s.address}
+                  className={`cursor-pointer text-slate-700 px-3 py-2 sm:py-2.5 rounded-lg ${colors.suggestionHover} transition-colors flex items-center gap-2 text-sm sm:text-base`}
+                  onClick={() => submit(s.address)}
                 >
                   <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span className="flex-1 truncate">{s}</span>
+                  <div className="flex-1 truncate">
+                    <span className="text-slate-800">{s.address}</span>
+                    {s.bairro && <span className="text-slate-400 text-xs sm:text-sm ml-2">• {s.bairro}</span>}
+                  </div>
                 </li>
               ))}
             </ul>

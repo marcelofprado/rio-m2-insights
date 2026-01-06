@@ -39,7 +39,6 @@ export async function fetchRecentFeatures(): Promise<any[]> {
       if (data.features.length < page || all.length >= 50000) break
       offset += page
     }
-    console.log(`Loaded ${all.length} transaction records`)
     return all
   } catch (error) {
     console.error('Error fetching ITBI data:', error)
@@ -57,6 +56,7 @@ function normalizeString(s: string) {
 export function parseFeaturesForRecords(features: any[]) {
   // Convert aggregated monthly data into records
   const records: any[] = []
+
   for (const f of features) {
     const attrs = f.attributes || {}
 
@@ -73,18 +73,24 @@ export function parseFeaturesForRecords(features: any[]) {
     // Create date from year and month
     const dateVal = new Date(year, month - 1, 1)
 
-    // Get values (média_valor_imóvel and média_área_construída)
+    // Get values
     const avgValue = attrs['média_valor_imóvel'] || attrs.media_valor_imovel || 0
     const avgArea = attrs['média_área_construída'] || attrs.media_area_construida || 0
 
-    // Calculate m2 price
-    let m2Price: number | null = null
-    if (avgValue > 0 && avgArea > 0) {
-      m2Price = avgValue / avgArea
-    }
-
     // Get transaction count
     const transactionCount = attrs['total_transações'] || attrs.total_transacoes || 1
+
+    // Store weighted values for proper aggregation
+    // A = média_valor_imóvel * total_transações
+    const totalValue = avgValue * transactionCount
+    // B = média_área_construída * total_transações
+    const totalArea = avgArea * transactionCount
+
+    // Calculate m2 price for this record (will be recalculated during aggregation)
+    let m2Price: number | null = null
+    if (totalValue > 0 && totalArea > 0) {
+      m2Price = totalValue / totalArea
+    }
 
     records.push({
       raw: attrs,
@@ -94,6 +100,8 @@ export function parseFeaturesForRecords(features: any[]) {
       area: avgArea,
       m2Price,
       transactionCount,
+      totalValue, // Store for aggregation
+      totalArea,  // Store for aggregation
       bairro: attrs.bairro || '',
       uso: attrs.uso || '',
       year,

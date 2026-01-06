@@ -9,6 +9,7 @@ export default function App() {
   const [selectedStreet, setSelectedStreet] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [propertyType, setPropertyType] = useState<'residential' | 'commercial'>('residential')
 
   useEffect(() => {
     ;(async () => {
@@ -27,16 +28,75 @@ export default function App() {
     })()
   }, [])
 
+  // Filter records by property type and exclude parking spaces
+  const filteredRecords = records.filter((r) => {
+    // Filter out parking spaces from "principais tipologias" column
+    const principaisTipologias = (r.raw?.principais_tipologias || r.raw?.['principais_tipologias'] || '').toUpperCase()
+    if (principaisTipologias === 'VAGA DE GARAGEM') {
+      return false
+    }
+
+    // Exact match on uso column
+    const uso = (r.uso || '').toUpperCase().trim()
+    if (propertyType === 'residential') {
+      // Exactly RESIDENCIAL
+      return uso === 'RESIDENCIAL'
+    } else {
+      // Exactly NAO RESIDENCIAL
+      return uso === 'NAO RESIDENCIAL'
+    }
+  })
+
+  const theme = propertyType === 'residential'
+    ? {
+        bgGradient: 'from-blue-50 via-slate-50 to-purple-50',
+        titleGradient: 'from-blue-600 to-purple-600',
+        primary: 'blue',
+        secondary: 'purple'
+      }
+    : {
+        bgGradient: 'from-red-50 via-slate-50 to-orange-50',
+        titleGradient: 'from-red-600 to-orange-600',
+        primary: 'red',
+        secondary: 'orange'
+      }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-purple-50 text-slate-900">
+    <div className={`min-h-screen bg-gradient-to-br ${theme.bgGradient} text-slate-900`}>
       <div className="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
         <header className="mb-6 sm:mb-12 text-center">
-          <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 sm:mb-3">
+          <h1 className={`text-3xl sm:text-5xl font-bold bg-gradient-to-r ${theme.titleGradient} bg-clip-text text-transparent mb-2 sm:mb-3`}>
             Rio m² Insights
           </h1>
           <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto px-2">
             Descubra tendências imobiliárias no Rio de Janeiro. Busque sua rua para ver dados de preços dos últimos 24 meses.
           </p>
+
+          {/* Property Type Toggle */}
+          <div className="mt-6 sm:mt-8 flex justify-center">
+            <div className="bg-white rounded-full p-1 shadow-md inline-flex">
+              <button
+                onClick={() => setPropertyType('residential')}
+                className={`px-6 sm:px-8 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold transition-all ${
+                  propertyType === 'residential'
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
+              >
+                Residencial
+              </button>
+              <button
+                onClick={() => setPropertyType('commercial')}
+                className={`px-6 sm:px-8 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold transition-all ${
+                  propertyType === 'commercial'
+                    ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
+              >
+                Comercial
+              </button>
+            </div>
+          </div>
         </header>
 
         {loading && (
@@ -73,19 +133,20 @@ export default function App() {
           <>
             <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-8 mb-6 sm:mb-8">
               <SearchBar
-                records={records}
+                records={filteredRecords}
                 onSelectStreet={(s) => setSelectedStreet(s)}
+                theme={theme}
               />
             </div>
 
             {selectedStreet && (
               <div className="space-y-4 sm:space-y-6">
-                <PriceChart records={records} street={selectedStreet} />
-                <Insights records={records} street={selectedStreet} />
+                <PriceChart records={filteredRecords} street={selectedStreet} theme={theme} />
+                <Insights records={filteredRecords} street={selectedStreet} theme={theme} />
               </div>
             )}
 
-            {!selectedStreet && records.length > 0 && (
+            {!selectedStreet && filteredRecords.length > 0 && (
               <div className="text-center py-8 sm:py-12 px-4">
                 <svg className="mx-auto h-16 sm:h-24 w-16 sm:w-24 text-slate-300 mb-3 sm:mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -94,7 +155,7 @@ export default function App() {
                   Digite o nome de uma rua acima para ver insights
                 </p>
                 <p className="text-slate-400 text-xs sm:text-sm mt-2">
-                  {records.length.toLocaleString('pt-BR')} transações carregadas
+                  {filteredRecords.length.toLocaleString('pt-BR')} transações carregadas
                 </p>
               </div>
             )}
