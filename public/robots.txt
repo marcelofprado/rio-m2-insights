@@ -1,0 +1,15 @@
+# Robots.txt for Rio m² Insights
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: http://rio.diodorus.com.br/sitemap.xml
+
+# Crawl-delay for better server performance
+Crawl-delay: 1
+
+# Disallow any future admin or API endpoints
+Disallow: /api/
+Disallow: /admin/
