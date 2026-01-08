@@ -5,7 +5,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: http://rio.diodorus.com.br/sitemap.xml
+Sitemap: https://rio.diodorus.com.br/sitemap.xml
 
 # Crawl-delay for better server performance
 Crawl-delay: 1
