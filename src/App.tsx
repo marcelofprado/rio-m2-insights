@@ -66,10 +66,10 @@ export default function App() {
       <div className="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
         <header className="mb-6 sm:mb-12 text-center">
           <h1 className={`text-3xl sm:text-5xl font-bold bg-gradient-to-r ${theme.titleGradient} bg-clip-text text-transparent mb-2 sm:mb-3`}>
-            Rio m² Insights
+            Preço m² Rio de Janeiro
           </h1>
           <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto px-2">
-            Descubra tendências imobiliárias no Rio de Janeiro. Busque sua rua para ver dados de preços dos últimos 24 meses.
+            Consulte o <strong>valor do metro quadrado</strong> de imóveis no Rio de Janeiro por bairro. Análise de <strong>tendências do mercado imobiliário</strong> com dados oficiais ITBI dos últimos 24 meses.
           </p>
 
           {/* Property Type Toggle */}
@@ -152,10 +152,10 @@ export default function App() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <p className="text-slate-500 text-base sm:text-lg">
-                  Digite o nome de uma rua acima para ver insights
+                  <strong>Busque sua rua</strong> para consultar o preço do m² e valorização de imóveis
                 </p>
                 <p className="text-slate-400 text-xs sm:text-sm mt-2">
-                  {filteredRecords.length.toLocaleString('pt-BR')} transações carregadas
+                  {filteredRecords.length.toLocaleString('pt-BR')} transações de imóveis disponíveis
                 </p>
               </div>
             )}
@@ -163,8 +163,8 @@ export default function App() {
         )}
 
         <footer className="mt-8 sm:mt-12 text-center text-xs sm:text-sm text-slate-500 border-t border-slate-200 pt-6 sm:pt-8 space-y-2">
-          <p className="font-medium">Fonte de dados: <a href="https://www.data.rio/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Data.Rio</a> - Prefeitura do Rio de Janeiro (ITBI)</p>
-          <p className="text-xs">Dados atualizados em tempo real dos registros oficiais da cidade</p>
+          <p className="font-medium">Fonte de dados: <a href="https://www.data.rio/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Data.Rio</a> - Prefeitura do Rio de Janeiro (ITBI - Imposto de Transmissão de Bens Imóveis)</p>
+          <p className="text-xs">Preços por metro quadrado atualizados em tempo real com base nos registros oficiais de transações imobiliárias da cidade do Rio de Janeiro</p>
           <p className="text-slate-400 pt-2">
             Criado por <a href="https://github.com/marcelofprado" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Marcelo Prado</a>
           </p>

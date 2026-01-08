@@ -129,7 +129,7 @@ export default function Insights({ records, street, theme }: { records: any[]; s
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
           </div>
-          <h4 className="text-sm sm:text-base font-semibold text-slate-800">Tendência</h4>
+          <h4 className="text-sm sm:text-base font-semibold text-slate-800">Valorização</h4>
         </div>
         <p className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">
           {trend === 'up' && <span className="text-green-600">↗ Alta</span>}
@@ -181,12 +181,12 @@ export default function Insights({ records, street, theme }: { records: any[]; s
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h4 className="text-sm sm:text-base font-semibold text-slate-800">Preço Atual</h4>
+          <h4 className="text-sm sm:text-base font-semibold text-slate-800">Valor m² Atual</h4>
         </div>
         <p className={`text-2xl sm:text-3xl font-bold ${cards.price.text} mb-1`}>
           R$ {Math.round(latestPrice).toLocaleString('pt-BR')}
         </p>
-        <p className="text-xs sm:text-sm text-slate-600">por m²</p>
+        <p className="text-xs sm:text-sm text-slate-600">preço por m²</p>
       </div>
 
       <div className={`bg-gradient-to-br ${cards.transactions.bg} rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-md border ${cards.transactions.border}`}>

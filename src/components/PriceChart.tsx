@@ -182,7 +182,7 @@ export default function PriceChart({ records, street, theme }: { records: any[];
         },
         title: {
           display: true,
-          text: 'Preço por m²',
+          text: 'Valor m² (R$)',
           font: {
             size: 12,
             weight: 600
@@ -229,11 +229,12 @@ export default function PriceChart({ records, street, theme }: { records: any[];
   return (
     <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-8 shadow-lg">
       <div className="mb-4 sm:mb-6">
-        <h3 className="text-lg sm:text-2xl font-bold text-slate-800">Análise de Tendência de Preços</h3>
+        <h2 className="text-lg sm:text-2xl font-bold text-slate-800">Evolução do Preço do Metro Quadrado - Últimos 24 Meses</h2>
         <p className="text-sm sm:text-base text-slate-800 mt-1 truncate">
-          {street}
+          <strong>{street}</strong>
           {neighborhood && <span className="text-slate-400 ml-2">• {neighborhood}</span>}
         </p>
+        <p className="text-xs sm:text-sm text-slate-500 mt-1">Histórico de valorização baseado em transações ITBI oficiais</p>
       </div>
       <div className="h-64 sm:h-80 md:h-96">
         <Line key={`chart-${street}-${filtered.length}`} data={chartData} options={opts} />

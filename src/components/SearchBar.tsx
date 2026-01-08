@@ -65,7 +65,7 @@ export default function SearchBar({ records, onSelectStreet, theme }: { records:
   return (
     <div className="relative">
       <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-2 sm:mb-3">
-        Buscar rua no Rio de Janeiro
+        Buscar valor m² por rua e bairro no Rio de Janeiro
       </label>
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <div className="relative flex-1">
@@ -76,7 +76,7 @@ export default function SearchBar({ records, onSelectStreet, theme }: { records:
           </div>
           <input
             className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 border-2 border-slate-200 rounded-xl ${colors.inputFocus} focus:ring-2 transition-all outline-none text-base sm:text-lg`}
-            placeholder="Ex: Av. Rio Branco, Rua das Laranjeiras..."
+            placeholder="Ex: Av. Rio Branco, Copacabana, Leblon..."
             value={q}
             onChange={(e) => {
               setQ(e.target.value)
@@ -84,14 +84,16 @@ export default function SearchBar({ records, onSelectStreet, theme }: { records:
             }}
             onKeyDown={handleKeyDown}
             onFocus={() => setShowSuggestions(true)}
+            aria-label="Buscar preço metro quadrado por rua no Rio de Janeiro"
           />
         </div>
         <button
           onClick={() => submit(q)}
           disabled={!q.trim()}
           className={`w-full sm:w-auto px-6 py-2.5 sm:py-3 ${colors.button} text-white rounded-xl font-semibold disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg text-sm sm:text-base`}
+          aria-label="Consultar preço"
         >
-          Buscar
+          Consultar Preço
         </button>
       </div>
 
@@ -123,7 +125,7 @@ export default function SearchBar({ records, onSelectStreet, theme }: { records:
 
       {showSuggestions && q.length >= 2 && suggestions.length === 0 && (
         <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-xl border border-slate-200 p-3 sm:p-4">
-          <p className="text-slate-500 text-xs sm:text-sm">Nenhuma rua encontrada com "{q}"</p>
+          <p className="text-slate-500 text-xs sm:text-sm">Nenhuma rua ou bairro encontrado com "{q}". Tente buscar por outra localização no Rio de Janeiro.</p>
         </div>
       )}
     </div>
